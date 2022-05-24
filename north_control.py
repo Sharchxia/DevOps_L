@@ -169,7 +169,7 @@ def get_all_devices_on_group_id(group_id: str):
     with open('group_and_device.json') as f:
         data = json.load(f)
     data['group_id'] = group_id
-    data = json.dumps(data)
+    data = json.dumps(data)push
     response = requests.post(address, data)
     print(response.json())
 
