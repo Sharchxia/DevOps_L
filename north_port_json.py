@@ -92,7 +92,7 @@ def encrypt(passwd: str):  # encrypt the password
     random.seed(seed)  # use the last element in passwd as seed to generate salt
     salt = random.sample(string.digits, 5)
     salt = ''.join(salt)
-    passwd = passwd[41:] + passwd[:41]  # reverse the password
+    passwd = passwd[int(len(passwd) / 2):] + passwd[:int(len(passwd) / 2)]  # reverse the password
     md5 = hashlib.md5(salt.encode('utf-8'))
     md5.update(passwd.encode('utf-8'))
     ret = md5.hexdigest()
@@ -412,7 +412,7 @@ async def group_scan(request):  # get info of all groups and their puisne device
     uid = content['group_id']
     my = MySQL()
     condition = "id='{}'".format(uid)
-    info = my.my_scan(GROUP_INFO, condition=condition)[0]
+    info = my.my_scan(GROUP_INFO, condition=condition)
     if len(info) == 0:
         return json({'status': 'Warning', 'info': 'no such a group'}, status=400)
     try:
@@ -495,7 +495,7 @@ async def scan_all_group(request):  # get all info of devices, groups and their 
 
 @app.post('/group_new_device')
 async def group_new_device(request):  # add an existing device to a group basing on their ids
-    content = request.json
+    content = request.form
     group_id = content['group_id']
     device_id = content['device_id']
     my = MySQL()
