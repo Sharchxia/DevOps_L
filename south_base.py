@@ -38,7 +38,7 @@ class SouthBase:
         self.__if_authenticated = 0
         self.__if_pushed = 0
         self.__url = 'ws://' + ip + ':' + port + target
-        self.__ask_times = 0
+        self.__ask_times = 100
         self.__push_times = 100
         self.__command = ''
         self.__uid = ''
@@ -120,7 +120,7 @@ class SouthBase:
         self.__if_authenticated = 1
         self.log(3)
         while True:
-            if self.__ask_times == 100 - self.__push_times:
+            if self.__ask_times >= self.__push_times:
                 self.send_status()
                 ret = int(self.recv()['pushed'])
                 if ret:
@@ -128,13 +128,23 @@ class SouthBase:
                 else:
                     self.__if_pushed = 0
                 self.log(4)
+                self.__ask_times = 0
             self.ask_cmd()
-            ret = self.recv()['command']
-            if ret == 'r':
+            self.__ask_times += 1
+            ret = self.recv()
+            if 'warning' in ret.keys():
+                print('\033[0;31mPermission denied\033[0m')
+                self.__command = ''
+                return
+            if ret['command'] == 'r':
+                # print('rrrrrrrrrrrrrrrrrrrrr')
                 self.__command = 'r'
                 return
-            elif ret == 's':
-                pass
+            elif ret['command'] == 's':
+                # pass
+                # this block would use to operate sftp
+                print('sssssssssssssssssssss')
+                print(ret['position'])
             time.sleep(2)
 
     def authenticate(self):
@@ -149,6 +159,7 @@ class SouthBase:
         template['operation'] = 'a'
         template['msgs']['uid'] = uid
         template['msgs']['passwd'] = passwd
+        template['cer'] = uid
         data = js.dumps(template)
         self.ws.send(data)
         time.sleep(0.02)
