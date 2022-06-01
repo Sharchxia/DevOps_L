@@ -30,7 +30,8 @@ COLUMNS_GROUP_INFO = ['id', 'name', 'description', 'time_create', 'time_update',
 COLUMNS_CHECK = ['id', 'reboot', 'sftp', 'sftp_position']
 
 
-class MySQL:
+class MySQL:  # this class is used to simplify operations in Mysql
+    # the parameter of this class is the info of SQL you want to connect and the database in that SQL
     def __init__(self, host='127.0.0.1', user='root', passwd='123456', database='dev_test'):
         self.host = host
         self.user = user
@@ -97,7 +98,7 @@ def get_key():
         key = ''.join(random.sample(my_range, 80))
     return key
 
-
+# this function is used to encrypt the password generate randomly so that the code stored in SQL cannot be used directly
 def encrypt(passwd: str):
     seed = ord(passwd[-1])
     random.seed(seed)
@@ -109,7 +110,8 @@ def encrypt(passwd: str):
     ret = md5.hexdigest()
     return ret
 
-
+# get a unique key for a device
+# to run this function correctly, snowflake server should be started
 def get_uid():
     host = 'localhost'
     port = 8910
@@ -117,15 +119,23 @@ def get_uid():
     uid = snowflake.client.get_guid()
     return uid
 
-
+# just get the time of now
 def get_now():
     t = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     return t
 
 
 app = Sanic('test')
+# there is one thing should be noticed that data returned by pymysql is a tuple,
+# so you would see a lot of code like base = my.my_scan(BASE, condition=condition)[0].
+# this aims to get data about the target from the tuple
 
+# another thing is that because these codes contains much info to be return, if you are confused about some codes
+# just have a look of the returning info near them, sometimes this would help a lot
 
+# register a device
+# the most important parameter is 'name', without that, this function would throw an exception and none device would be
+# added. it's fine to let other parameter be NULL, they would be processed as '' in this function
 @app.post('/device_new')
 async def dev_new(request):
     my = MySQL()
@@ -211,7 +221,7 @@ async def dev_new(request):
             my.roll_back()
             return json({'status': 'Error, please try again'}, status=400)
 
-
+# based on the ID, this function would delete the info of the target device among all tables in the database
 @app.post('/device_del')
 async def delete(request):
     content = request.form
@@ -236,7 +246,7 @@ async def delete(request):
         logger.info('\033[0;31mError: fail to delete the device because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# this function used to deliver basic info of the target device
 @app.post('/device_scan')
 async def dev_scan(request):
     content = request.form
@@ -268,7 +278,9 @@ async def dev_scan(request):
         logger.info('\033[0;31mError: fail to get info of the device because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# update, just need a UID
+# which info to be updated is up to you
+# if you transmit no data to this function but UID, it would still work to update 'nothing'
 @app.post('/device_update')
 async def dev_update(request):
     content = request.form
@@ -364,7 +376,7 @@ async def dev_update(request):
         my.roll_back()
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# just like it says, deliver info of all devices
 @app.get('/scan_all_device')
 async def scan_all_dev(request):
     my = MySQL()
@@ -383,7 +395,7 @@ async def scan_all_dev(request):
         logger.info('\033[0;31mError: fail to return info because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'})
 
-
+# based on the UID given, this would return any info about groups relating to the device
 @app.post('/device_id_group')
 async def dev_id_group(request):
     my = MySQL()
@@ -418,7 +430,7 @@ async def dev_id_group(request):
         logger.info('\033[0;31mError, fail to return info because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# just to return all relations of devices and groups
 @app.get('/scan_all_device_group')
 async def scan_all_device_group(request):
     my = MySQL()
@@ -445,7 +457,7 @@ async def scan_all_device_group(request):
         logger.info('\033[0;31mError, fail to return info because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# give a name (must), this function would generate a new group
 @app.post('/group_new')
 async def group_new(request):
     content = request.form
@@ -483,7 +495,7 @@ async def group_new(request):
         logger.info('\033[0;31mError, fail to add a new group because: {}\033[0m '.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# delete a group
 @app.post('/group_del')
 async def group_del(request):
     content = request.form
@@ -507,7 +519,7 @@ async def group_del(request):
         logger.info('\033[0;31mError, fail to delete a group because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# return the info of a group based on the UID given
 @app.post('/group_scan')
 async def group_scan(request):
     content = request.form
@@ -537,7 +549,7 @@ async def group_scan(request):
         logger.info('\033[0;31mError, fail to return info of group because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# update, update, update. nothing fresh compared with the device_update
 @app.post('/group_update')
 async def group_update(request):
     content = request.form
@@ -579,7 +591,7 @@ async def group_update(request):
         logger.info('\033[0;31mError, fail to update group because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# return info of all groups
 @app.get('/scan_all_group')
 async def scan_all_group(request):
     my = MySQL()
@@ -610,7 +622,8 @@ async def scan_all_group(request):
         logger.info('\033[0;31mError, fail to return relation of groups and devices because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'}, status=400)
 
-
+# want a new relation among existing devices and existing groups ?
+# just use this by give the correct UIDs
 @app.post('/group_new_device')
 async def group_new_device(request):
     content = request.form
@@ -644,7 +657,7 @@ async def group_new_device(request):
         logger.info('\033[0;31mError, fail to add the relation because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'})
 
-
+# if there is a 'new' above, there would be a 'delete' certainly
 @app.post('/group_del_device')
 async def group_del_device(request):
     content = request.form
@@ -673,7 +686,7 @@ async def group_del_device(request):
         logger.info('\033[0;31mError, fail to delete the relation because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'})
 
-
+# give the id of a group, this function would help you find devices belonged to the group
 @app.post('/group_scan_device')
 async def group_scan_device(request):
     content = request.form
@@ -703,7 +716,7 @@ async def group_scan_device(request):
         logger.info('\033[0;31mError, fail to return devices belonging to a group because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'})
 
-
+# provide an ID of device, return all groups containing this device
 @app.post('/device_scan_group')
 async def device_scan_group(request):
     content = request.form
@@ -734,7 +747,7 @@ async def device_scan_group(request):
             '\033[0;31mError, fail to return groups containing a target device because: {}\033[0m'.format(str(e)))
         return json({'status': 'Error', 'info': 'please try again'})
 
-
+# this device wants to run away from all groups
 @app.post('/device_del_group')
 async def device_del_group(request):
     content = request.form
@@ -781,6 +794,9 @@ async def operation(rq, ws):
         msgs = js.loads(msgs)
         op = msgs['operation']
         uid = msgs['cer']
+        # a device has authenticated, but it doesn't return any info for a long time (longer than 10s).
+        # then there maybe some wrong, so just kill this device authentication.
+        # must re-authentication
         if uid in available.keys():
             available[uid]['time2'] = time.time()
             if available[uid]['time2'] - available[uid]['time1'] > 10:
@@ -791,34 +807,36 @@ async def operation(rq, ws):
                     my.my_delete(CHECK, condition)
                     my.commit()
                 except:
-                    logger.info('eeeeeeeeeeeeeeeeeee')
                     my.roll_back()
-        if op == 'a':
+        if op == 'a':  # a means authentication
             ret = check(msgs, ret)
-        elif op == 'p' and msgs['cer'] in available:
+        elif op == 'p' and msgs['cer'] in available:  # p means info is provided to this server
             ret = get_info(msgs, ret)
-        elif op == 'c' and msgs['cer'] in available:
+        elif op == 'c' and msgs['cer'] in available:  # c means the device wants to check any cmd give by this server
             ret = control(msgs, ret)
-        else:
+        else:  # not three above ? then it cannot be trusted
             ret['warning'] = 'permission denied'
             ret = js.dumps(ret)
         await ws.send(ret)
 
-
+# this function is aimed to authenticate a device.
+# if the device is allowed to communicate with this server, the device's uid would be stored in a list so that it could
+# chat with this server successfully later.
+# if isn't allowed, then go away
 def check(msgs, ret):
     global available
     my = MySQL()
     uid = msgs['msgs']['uid']
     passwd = encrypt(msgs['msgs']['passwd'])
     condition = '''id='{}' and passwd='{}\''''.format(uid, passwd)
-    if len(my.my_scan(CHECK, condition="id='{}'".format(uid))):
-        try:
-            my.my_delete(CHECK, condition="id='{}'".format(uid))
+    if len(my.my_scan(CHECK, condition="id='{}'".format(uid))):  # clear previous cmd flag in SQL to let this new device
+        try:                                                     # in. otherwise, there would be two cmd flag for 'me'.
+            my.my_delete(CHECK, condition="id='{}'".format(uid))  # which should 'I' listen to ?
             my.commit()
         except Exception as e:
             my.roll_back()
             logger.info('\033[0;31mError: {}\033[0m'.format(str(e)))
-    if len(my.my_scan(CER, condition=condition)):
+    if len(my.my_scan(CER, condition=condition)):  # allowed, add info to list and SQL
         available[uid] = dict()
         available[uid]['reboot'] = '0'
         available[uid]['sftp'] = '0'
@@ -846,7 +864,8 @@ def get_info(msgs, ret):
     ret = js.dumps(ret)
     return ret
 
-
+# when the device ask for command, this function would check the flags in SQL first,
+# then based on those flags, command would be given (reboot, sftp)
 def control(msgs, ret):
     global available
     uid = msgs['cer']

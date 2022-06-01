@@ -137,11 +137,13 @@ class SouthBase:
                 self.__command = ''
                 return
             if ret['command'] == 'r':
-                # print('rrrrrrrrrrrrrrrrrrrrr')
                 self.__command = 'r'
                 return
             elif ret['command'] == 's':
                 # pass
+                ######################################
+                ######################################
+                ######################################
                 # this block would use to operate sftp
                 print('sssssssssssssssssssss')
                 print(ret['position'])
@@ -184,6 +186,7 @@ class SouthBase:
         time.sleep(0.02)
 
 
+# run this code and follow red tips given to operation correctly
 if __name__ == '__main__':
     south = SouthBase(port='8001')
     south.run()

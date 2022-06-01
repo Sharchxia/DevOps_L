@@ -56,10 +56,12 @@ class MySQL:
 
 
 CHECK = 'dev_check_cmd'
-
 COLUMNS_CHECK = ['id', 'reboot', 'sftp', 'sftp_position']
 
-
+# give (or change) flags of command in SQL
+# enter format should be:
+# reboot: python3 give_cmd uid reboot
+# sftp: python3 give_cmd uid sftp position
 if __name__ == "__main__":
     my = MySQL()
     uid = sys.argv[1]
