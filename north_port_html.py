@@ -15,6 +15,8 @@ SOFT = 'dev_device_info_software'
 CER = 'dev_device_certification'
 GROUP_DEVICE = 'dev_group_and_device'
 GROUP_INFO = 'dev_group_info'
+CHECK = 'dev_check_cmd'
+
 
 COLUMNS_BASE = ['id', 'name', 'description', 'time_create', 'time_update']
 COLUMNS_HARD = ['id', 'hard_number', 'hard_type', 'efi_mac', 'wifi_mac', 'lte']
@@ -23,6 +25,7 @@ COLUMNS_SOFT = ['id', 'base_version', 'base_update_time', 'base_status', 'servic
 COLUMNS_CER = ['id', 'passwd']
 COLUMNS_GROUP_DEVICE = ['group_id', 'device_id']
 COLUMNS_GROUP_INFO = ['id', 'name', 'description', 'time_create', 'time_update', 'content']
+COLUMNS_CHECK = ['id', 'reboot', 'sftp', 'sftp_position']
 
 
 class MySQL:
@@ -71,6 +74,9 @@ class MySQL:
             command = '''update {} set {} where {}'''.format(table, target, condition)
             self.cur.execute(command)
 
+    def my_truncate(self, table: str):
+        command = "truncate table {}".format(table)
+        self.cur.execute(command)
 
 def get_key():
     my = MySQL()

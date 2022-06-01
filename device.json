@@ -1,0 +1,25 @@
+{
+  "device_id": "",
+  "base": {
+    "name": "",
+    "description": "",
+    "time_create": "",
+    "time_update": ""
+  },
+  "hardware": {
+    "hard_number": "",
+    "hard_type": "",
+    "efi_mac": "",
+    "wifi_mac": "",
+    "lte": ""
+  },
+  "software": {
+    "base_version": "",
+    "base_update_time": "",
+    "base_status": "good",
+    "service_version": "",
+    "service_update_time": "",
+    "service_status": "good"
+  },
+  "certification": ""
+}
