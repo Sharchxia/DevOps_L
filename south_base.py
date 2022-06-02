@@ -1,3 +1,4 @@
+import paramiko
 import websocket as wb
 import time
 import json as js
@@ -42,6 +43,9 @@ class SouthBase:
         self.__push_times = 100
         self.__command = ''
         self.__uid = ''
+        self.__target_ip = '192.168.198.134'
+        self.__target_name = 'rot'
+        self.__target_passwd = '123456'
         self.log_file = './south_base.json'
         self.json = './operation.json'
         self.ws = wb.WebSocket()
@@ -63,17 +67,17 @@ class SouthBase:
         except Exception as e:
             print('\033[0;32mSome error happens in the server\033[0m')
             print(e)
-            self.__del__()
+            del self  # if server has error, killing this client is a good choice
 
     def log(self, event: int):  # 1 means connect, 2->establish tube, 3->authenticate, 4->push status data
-        if event not in [1, 2, 3, 4]:
+        if event not in [1, 2, 3, 4, 5, 6]:
             return
         with open(self.log_file, 'r') as f:
             data = js.load(f)
-        try:
-            data[get_now()]
-        except:
-            data[get_now()] = dict()
+            try:
+                data[get_now()]
+            except:
+                data[get_now()] = dict()
         if event == 1:
             data[get_now()]['connect'] = 'try to connect to server'
         elif event == 2:
@@ -86,11 +90,15 @@ class SouthBase:
                 data[get_now()]['authentication'] = 'device is allowed to communicate with the server'
             else:
                 data[get_now()]['authentication'] = 'permission denied, please check the UID and PASSWORD'
-        else:
+        elif event == 4:
             if self.__if_pushed:
                 data[get_now()]['push'] = 'pushed the status data successfully'
             else:
                 data[get_now()]['push'] = 'failed to push data to server'
+        elif event == 5:
+            data[get_now()]['sftp'] = 'pushed the log file successfully'
+        else:
+            data[get_now()]['sftp'] = 'failed to push the log file'
 
         with open(self.log_file, 'w') as f:
             js.dump(data, f, indent=2)
@@ -140,13 +148,20 @@ class SouthBase:
                 self.__command = 'r'
                 return
             elif ret['command'] == 's':
-                # pass
-                ######################################
-                ######################################
-                ######################################
-                # this block would use to operate sftp
-                print('sssssssssssssssssssss')
-                print(ret['position'])
+                try:
+                    client = paramiko.Transport((self.__target_ip, 22))
+                    client.connect(username=self.__target_name, password=self.__target_passwd)
+                    sftp = paramiko.SFTPClient.from_transport(client)
+                    position = ret['position']
+                    sftp.put(localpath=self.log_file, remotepath=position + '/' + self.log_file + '_' + self.__uid)
+                    print('sftp run successfully')
+                    self.log(5)
+                except:
+                    data = {'Error': 'fail to sftp log file of device ' + self.__uid}
+                    data = js.dumps(data)
+                    self.ws.send(data)
+                    print('fail to run sftp')
+                    self.log(6)
             time.sleep(2)
 
     def authenticate(self):

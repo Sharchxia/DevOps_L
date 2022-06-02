@@ -814,7 +814,7 @@ async def operation(rq, ws):
             ret = get_info(msgs, ret)
         elif op == 'c' and msgs['cer'] in available:  # c means the device wants to check any cmd give by this server
             ret = control(msgs, ret)
-        else:  # not three above ? then it cannot be trusted
+        else:  # not three above? then it cannot be trusted
             ret['warning'] = 'permission denied'
             ret = js.dumps(ret)
         await ws.send(ret)
