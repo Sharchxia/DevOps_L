@@ -46,7 +46,7 @@ class SouthBase:
         self.__target_ip = '192.168.198.134'
         self.__target_name = 'rot'
         self.__target_passwd = '123456'
-        self.log_file = './south_base.json'
+        self.log_file = './log_info.json'
         self.json = './operation.json'
         self.ws = wb.WebSocket()
         if not Path(self.log_file).is_file():
@@ -153,7 +153,7 @@ class SouthBase:
                     client.connect(username=self.__target_name, password=self.__target_passwd)
                     sftp = paramiko.SFTPClient.from_transport(client)
                     position = ret['position']
-                    sftp.put(localpath=self.log_file, remotepath=position + '/' + self.log_file + '_' + self.__uid)
+                    sftp.put(localpath=self.log_file, remotepath=position + '/' + self.__uid + '_' + self.log_file)
                     print('sftp run successfully')
                     self.log(5)
                 except:
