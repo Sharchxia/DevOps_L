@@ -43,7 +43,7 @@ class SouthBase:
         self.__push_times = 100
         self.__command = ''
         self.__uid = ''
-        self.__target_ip = '192.168.198.134'
+        self.__target_ip = self.ip
         self.__target_name = 'rot'
         self.__target_passwd = '123456'
         self.log_file = './log_info.json'
@@ -78,7 +78,9 @@ class SouthBase:
                 data[get_now()]
             except:
                 data[get_now()] = dict()
-        if event == 1:
+        if event == 0:
+            pass
+        elif event == 1:
             data[get_now()]['connect'] = 'try to connect to server'
         elif event == 2:
             if self.__if_connected:
@@ -107,6 +109,7 @@ class SouthBase:
         self.ws.connect(self.__url)
 
     def run(self):
+        self.log(0)
         self.log(1)
         try:
             self.connect()
