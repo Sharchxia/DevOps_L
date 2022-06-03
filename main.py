@@ -886,6 +886,7 @@ def control(msgs, ret):
             ret['command'] = 'r'
             available[uid]['reboot'] = '0'
             my.my_update(CHECK, COLUMNS_CHECK[1:2], ['0'], condition)
+            my.my_delete(CHECK, condition)
         elif int(available[uid]['sftp']):
             ret['command'] = 's'
             ret['position'] = cmd[3]

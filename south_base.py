@@ -32,13 +32,13 @@ def status():
 
 
 class SouthBase:
-    def __init__(self, ip='127.0.0.1', port='8888', target='/south'):
+    def __init__(self, ip='127.0.0.1', port='8000', target='/south'):
         self.ip = ip
         self.port = port
         self.__if_connected = 0
         self.__if_authenticated = 0
         self.__if_pushed = 0
-        self.__url = 'ws://' + ip + ':' + port + target
+        self.__url = 'wss://' + ip + ':' + port + target
         self.__ask_times = 100
         self.__push_times = 100
         self.__command = ''
@@ -203,5 +203,5 @@ class SouthBase:
 
 # run this code and follow red tips given to operation correctly
 if __name__ == '__main__':
-    south = SouthBase(ip='www.xcxcxcxc.top')
+    south = SouthBase(ip='120.77.73.107')
     south.run()
