@@ -38,14 +38,14 @@ class SouthBase:
         self.__if_connected = 0
         self.__if_authenticated = 0
         self.__if_pushed = 0
-        self.__url = 'wss://' + ip + ':' + port + target
+        self.__url = 'ws://' + ip + ':' + port + target
         self.__ask_times = 100
         self.__push_times = 100
         self.__command = ''
         self.__uid = ''
         self.__target_ip = self.ip
-        self.__target_name = 'rot'
-        self.__target_passwd = '123456'
+        self.__target_name = 'root'
+        self.__target_passwd = 'Fxxc524466'
         self.log_file = './log_info.json'
         self.json = './operation.json'
         self.ws = wb.WebSocket()
@@ -56,6 +56,7 @@ class SouthBase:
 
     def __del__(self):
         self.ws.close()
+        # print(self.__command)
         if self.__command == 'r':
             os.system('shutdown -t 1 -r')
 
@@ -146,6 +147,7 @@ class SouthBase:
                 return
             if ret['command'] == 'r':
                 self.__command = 'r'
+                self.__del__()
                 return
             elif ret['command'] == 's':
                 try:
@@ -155,13 +157,20 @@ class SouthBase:
                     position = ret['position']
                     sftp.put(localpath=self.log_file, remotepath=position + '/' + self.__uid + '_' + self.log_file)
                     print('sftp run successfully')
+                    data = {'msgs': {'Done': 'sftp log file of device successfully'}, 'cmd': 'p', 'cer': self.__uid}
+                    data = js.dumps(data)
+                    self.ws.send(data)
                     self.log(5)
+                    time.sleep(0.02)
+                    self.recv()
                 except:
-                    data = {'Error': 'fail to sftp log file of device ' + self.__uid}
+                    data = {'msgs': {'Error': 'fail to sftp log file of device '}, 'cmd': 'p', 'cer': self.__uid}
                     data = js.dumps(data)
                     self.ws.send(data)
                     print('fail to run sftp')
                     self.log(6)
+                    time.sleep(0.02)
+                    self.recv()
             time.sleep(2)
 
     def authenticate(self):

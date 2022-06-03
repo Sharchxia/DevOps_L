@@ -1,0 +1,17 @@
+{
+  "2022-06-03 18:12:26": {
+    "initialise": "create this log file",
+    "connect": "try to connect to server"
+  },
+  "2022-06-03 18:12:27": {
+    "channel": "cannot find server, please check if server is closed"
+  },
+  "2022-06-03 18:13:15": {
+    "connect": "try to connect to server",
+    "channel": "connect to server successfully"
+  },
+  "2022-06-03 18:15:50": {
+    "connect": "try to connect to server",
+    "channel": "connect to server successfully"
+  }
+}
