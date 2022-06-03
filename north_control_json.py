@@ -1,7 +1,7 @@
 import requests
 import json
 # the domain name
-ADDRESS = 'http://localhost:8000'
+ADDRESS = 'http://localhost:8888'
 # urls in the domain name
 TARGET = ['/device_new', '/device_del', '/device_scan', '/device_update', '/scan_all_device', '/device_id_group',
           '/scan_all_device_group', '/group_new', '/group_del', '/group_scan', '/group_update', '/scan_all_group',

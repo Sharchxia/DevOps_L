@@ -8,10 +8,10 @@ import random
 import hashlib
 import string
 from sanic.log import logger
-
+import ssl
 
 class MySQL:
-    def __init__(self, host='127.0.0.1', user='root', passwd='123456', database='dev_test'):
+    def __init__(self, host='127.0.0.1', user='root', passwd='', database='dev_test'):
         self.host = host
         self.user = user
         self.passwd = passwd
@@ -78,6 +78,11 @@ CER = 'dev_device_certification'
 CHECK = 'dev_check_cmd'
 
 COLUMNS_CHECK = ['id', 'reboot', 'sftp', 'sftp_position']
+
+context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+context.load_cert_chain(certfile="server.crt",keyfile="server.key")
+context.load_verify_locations("client.crt")
+context.verify_mode=ssl.CERT_REQUIRED
 
 app = Sanic('south')
 
@@ -191,7 +196,7 @@ if __name__ == '__main__':
     try:
         m.my_truncate(CHECK)
         m.commit()
-        app.run('0.0.0.0', 8001)
+        app.run('0.0.0.0', 8888, ssl=context)
     except Exception as er:
         m.roll_back()
         print('Error: %s' % str(er))

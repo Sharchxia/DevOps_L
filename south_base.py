@@ -32,7 +32,7 @@ def status():
 
 
 class SouthBase:
-    def __init__(self, ip='127.0.0.1', port='8002', target='/south'):
+    def __init__(self, ip='127.0.0.1', port='8888', target='/south'):
         self.ip = ip
         self.port = port
         self.__if_connected = 0
@@ -50,8 +50,8 @@ class SouthBase:
         self.json = './operation.json'
         self.ws = wb.WebSocket()
         if not Path(self.log_file).is_file():
-            data = {get_now(): 'create this file'}
-            with open(self.log_file, 'w+') as f:
+            data = {get_now(): {'initialise': 'create this log file'}}
+            with open(self.log_file, 'w') as f:
                 js.dump(data, f, indent=2)
 
     def __del__(self):
@@ -74,13 +74,11 @@ class SouthBase:
             return
         with open(self.log_file, 'r') as f:
             data = js.load(f)
-            try:
-                data[get_now()]
-            except:
-                data[get_now()] = dict()
-        if event == 0:
-            pass
-        elif event == 1:
+        try:
+            data[get_now()] = data[get_now()]
+        except:
+            data[get_now()] = dict()
+        if event == 1:
             data[get_now()]['connect'] = 'try to connect to server'
         elif event == 2:
             if self.__if_connected:
@@ -109,7 +107,6 @@ class SouthBase:
         self.ws.connect(self.__url)
 
     def run(self):
-        self.log(0)
         self.log(1)
         try:
             self.connect()
@@ -206,5 +203,5 @@ class SouthBase:
 
 # run this code and follow red tips given to operation correctly
 if __name__ == '__main__':
-    south = SouthBase(port='8001')
+    south = SouthBase(ip='www.xcxcxcxc.top')
     south.run()

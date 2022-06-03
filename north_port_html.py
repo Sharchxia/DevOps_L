@@ -8,6 +8,10 @@ from sanic import Sanic
 from sanic.response import json
 from sanic.log import logger
 from typing import List
+import ssl
+
+context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
+context.load_cert_chain("ca.crt", keyfile="ca.key")
 
 BASE = 'dev_device_info_base'
 HARD = 'dev_device_info_hardware'
@@ -29,7 +33,7 @@ COLUMNS_CHECK = ['id', 'reboot', 'sftp', 'sftp_position']
 
 
 class MySQL:
-    def __init__(self, host='127.0.0.1', user='root', passwd='123456', database='dev_test'):
+    def __init__(self, host='127.0.0.1', user='root', passwd='', database='dev_test'):
         self.host = host
         self.user = user
         self.passwd = passwd
@@ -763,4 +767,4 @@ async def device_del_group(request):
 
 
 if __name__ == '__main__':
-    app.run('0.0.0.0', 8001)
+    app.run('0.0.0.0', 8888, ssl=context)

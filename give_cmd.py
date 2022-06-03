@@ -5,7 +5,7 @@ from sanic.log import logger
 
 
 class MySQL:
-    def __init__(self, host='127.0.0.1', user='root', passwd='123456', database='dev_test'):
+    def __init__(self, host='127.0.0.1', user='root', passwd='', database='dev_test'):
         self.host = host
         self.user = user
         self.passwd = passwd
